@@ -24,7 +24,9 @@ module Goalie
       'ActionController::NotImplemented'           => :not_implemented,
       'ActionController::InvalidAuthenticityToken' => :unprocessable_entity,
       'Goalie::Forbidden'                          => :forbidden,
-      'Goalie::NotFound'                           => :not_found
+      'Goalie::NotFound'                           => :not_found,
+      'Yajl::ParseError'                           => :bad_request,
+      'REXML::ParseException'                      => :bad_request
     })
 
     FAILSAFE_RESPONSE = [
@@ -63,6 +65,7 @@ module Goalie
       log_error(exception)
 
       request = ActionDispatch::Request.new(env)
+
       if @consider_all_requests_local || request.local?
         rescue_action_locally(request, exception)
       else
@@ -96,8 +99,7 @@ module Goalie
       }
       request.env['goalie.error_params'] = error_params
       action = rescue_actions[exception.class.name]
-      response = LocalErrorsController.action(action).call(request.env).last
-      render(status_code(exception), response.body)
+      render(*LocalErrorsController.action(action).call(request.env))
     end
 
     def rescue_action_in_public(request, exception)
@@ -109,18 +111,16 @@ module Goalie
       }
       request.env['goalie.error_params'] = error_params
       action = @@rescue_responses[exception.class.name]
-      response = PublicErrorsController.action(action).call(request.env).last
-      render(status_code(exception), response.body)
+      render(*PublicErrorsController.action(action).call(request.env))
     end
 
     def status_code(exception)
       Rack::Utils.status_code(@@rescue_responses[exception.class.name])
     end
 
-    def render(status, body)
-      [status,
-       {'Content-Type' => 'text/html', 'Content-Length' => body.bytesize.to_s},
-       [body]]
+    def render(status, headers, body)
+      status = status_code(exception) if status == 200
+      [status, headers, body]
     end
 
     def public_path

@@ -1,5 +1,9 @@
 class PublicErrorsController < ActionController::Base
 
+  # 400
+  def bad_request
+  end
+
   # 403
   def forbidden
   end

@@ -1,0 +1,4 @@
+{
+  status: "404",
+  message: "The resource you were looking for does not exist"
+}

@@ -1,0 +1,4 @@
+{
+  status: "400",
+  message: "The request cannot be fulfilled due to bad syntax"
+}

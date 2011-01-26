@@ -1,0 +1,18 @@
+HEAD
+
+ver 0.0.4
+- added Yajl and REXML parse exceptions to @@rescue_responses hash
+
+- modified render method to rake in all three rack params
+
+- have LocalErrorsController and PublicErrorsController calls feeding directly
+into new render method
+
+- removed the hardcoded 'text/html' content type and returning the proper content-type in the response
+
+- added bad_request action to the public errors controller and also view files
+
+- added json and xml version of view files for the public errors controller
+
+
+
